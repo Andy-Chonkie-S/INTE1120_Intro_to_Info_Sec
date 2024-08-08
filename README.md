@@ -1,5 +1,5 @@
 # INTE1120_Intro_to_Info_Sec
-R files used to generate PDFs for Intro to Information Security.
+R files used to generate PDFs for Intro to Information Security. 
 
 ### 1. Introduction
 TBA
@@ -7,8 +7,8 @@ TBA
 ### 2. Repository Structure
 TBA
 
-### 3. Assignment Overview
-TBA
+### 3. Assignments Overview
+The assigments were provided as RMD files for R studio, with the work being the math code undertaken to reach the desired output results.
 
 ### 4. Code Structure and Explanation
 TBA
