@@ -1,0 +1,269 @@
+---
+title: "INTE1120 Assignment 1A"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+### Assignment 1A details:
+**Type your short answers into the text box and your code into the R code chunks. For all code answers, run the R code and display the output. Once you have answered all the questions, you should Knit to HTML and use your web browser to print to PDF. You must submit the PDF file in Canvas before the Due Date.**
+
+**If you have questions about the R notebook format, please see the detailed instructions found Module 0 on the Using R Notebooks page**
+
+**Full marks will not be awarded unless all working and explanations are shown and that includes R commands and the answer obtained from them.** 
+
+**This assignment is worth 10 marks in total and contributes 10% to your grade.**
+**This assignment has 8 questions, each question shows how many marks are allocated immediately after the question** </p>
+
+---
+
+**This assessment will be based on your student number.**
+
+<p style="color:green">
+Let **sABCDEFG** be your student number.\
+Then N= ( (A+B+C-D+E−F-G) mod 9) + 13.\
+For example if my student number is s3065417 then my N = ((3+0+6-5+4-1-7) mod 9 )+ 13 = 0+13 = 13. </p>
+
+\
+**What is your N?** Write it in the text box below:
+
+<textarea rows="6" cols="123">
+my student number : 2010815
+n = 2 + 0 + 1 - 0 + 8 - 1 - 5
+
+n = 5
+
+N = (n)mod 9 + 13
+
+N = (5)mod 9 + 13
+
+N = 18
+</textarea>\
+
+<p style="color:blue">
+**Assign your calculated N to a variable**</p>
+```{r}
+
+n = 2 + 0 + 1 - 0 + 8 - 1 - 5
+cat("Sum of my Student Number ( 2 + 0 + 1 - 0 + 8 - 1 - 5) \"n\" value = ", n, '\n')
+# N = (n)mod 9 + 13
+N = (n %% 9) + 13
+
+# N = 18
+cat("Calculated \"N\" value = ", N, '\n')
+# Assign N to a variable
+calculate_N_var = N
+
+N <- calculate_N_var # replace 18 with your calculated N
+```
+
+\
+<p style="color:blue">
+**Question 1** Using the code you studied in R Tutorial 1 write the code to generate the Cayley Table for $Z_N^*$ under multiplication $mod N$. Display this Cayley Table with the rows and columns labeled by the elements of the set $Z_N^*$. (Note: $Z_N^*$ refers to the set of non zero elements on $Z_N$ ) ( 2 marks) </p>
+
+```{r}
+# Write your code to question 1
+
+
+CayleyZN_18_non_zeroMult<-function(){
+  num1<-1:(N-1) # create a vector of row indices, excluding row 0
+  num2<-1:(N-1) # create a vector of column indices, excluding column 0
+  input<-expand.grid(x=num1, y=num2) # find all combinations of vector elements
+  cellValue <- ((input[,1]) * (input[,2])) %% N # compute the product modulo N(21)
+  result<-matrix(cellValue,(N-1),(N-1)) # put the vector of cellValue into an N-1 x N-1 matrix to get the Cayley Table. N-1 as we don't include N in the table.
+  rownames(result)<-c('"1"', '"2"', '"3"', '"4"', '"5"', '"6"', '"7"', '"8"', '"9"', '"10"', '"11"', '"12"', '"13"', '"14"', '"15"', '"16"', '"17"')  ## Define row names of the output to retain labels for transposition to Y
+  colnames(result)<-c('"1"', '"2"', '"3"', '"4"', '"5"', '"6"', '"7"', '"8"', '"9"', '"10"', '"11"', '"12"', '"13"', '"14"', '"15"', '"16"', '"17"')  ## Define column names of the output to retain labels for transposition to Y
+  result
+}
+
+print("Cayley Table containing the rows and columns labeled by the elements of the set for ZN^* under multiplication mod N (18), excluding row and column 0:")
+
+CayleyZN_18_non_zeroMult()
+
+```
+
+\
+<p style="color:blue">
+**Question 2**: Does your set $Z_N^*$ under multiplication $modN$ form a Group? Why or why not? ( 1 mark)</p>
+
+<textarea rows="10" cols="123">
+
+No, my set Z_N^* (for N = 18) under multiplication modN does not form a group as it does not satisfy the closure and Invertibility properties, although it satisfies the rest of the properties of a group: Associativity and Identity.
+
+Closure: For any two elements their product is also in Z_N^*. The rows that do not contain all the elements are divisors of N, e.g. the row 2 only contains the even numbers between 1 and N.
+
+Invertibility: Each row does not contain the identity element so invertibility is not satisfied. i.e. a * b = e or a * b = 1. e.g. (1 * 1) = 1, however there is no element that if we * 2 = 1.
+
+Associativity: Associativity is satisfied as (a * b) * c = a * (b * c) -> (2 * 3) * 6 = 2 * (3 * 6) = 36 = 36 mod 18 = 0 and 0 is contained within the set.
+
+Identity: It contains an identity element 1. If each value is multiplied by the identity element 1, we arrive at the original value.
+
+</textarea>\
+
+The function `powModN` below finds the powers of all elements in $Z_N^*$. When `pow` is $2$ we get the list of the squares of elements in $Z_N^*$. 
+
+```{r}
+powModN<-function(pow, N){
+  num<-2:N
+  result<-(num-1)^{pow} %% N
+  result
+}
+pow<-2
+powModN(pow, N)
+```
+
+\
+<p style="color:blue">
+**Question 3**: Use the `powModN` function and modify the inputs to print out the list of squares, cubes and to the fourth power for the elements in $Z_N^*$. (1 mark )</p>
+
+```{r}
+# Write your code to question 3
+
+#print out list of squares
+pow<-2
+powModN(pow, N)
+
+#print out list of cubes
+pow<-3
+powModN(pow, N)
+
+#print out list to the fourth power
+pow<-4
+powModN(pow, N)
+
+```
+
+\
+<p style="color:blue">
+**Question 4**: Describe in words how you could have found out the squares using the Cayley Table. (1 mark)</p>
+
+<textarea rows="6" cols="123">
+Write your answer for question 4
+
+The values of the squares can be found in the Cayley Table by looking down the centre diagonal where we have the result of the squares. e.g. (1 * 1) = 1, (2 * 2) = 4, (3 * 3) = 9, (4 * 4) = 16, (5 * 5) = 7, etc.
+</textarea>\
+
+
+<p style="color:green">
+Revise **Fact 1** learnt from **Tutorial 1**.\
+**Fact 1: Each row of the multiplication table is
+some permutation (rearrangement) of the group elements. The Fact 1 can also be defined as for all elements $a$ and $b$ in $G$, $a∗b$ is also in $G$**</p>
+
+\
+<p style="color:blue">
+**Question 5**: Observe the rows of your Cayley Table. Which of the rows obey **Fact 1**? (1 mark )</p>
+
+<textarea rows="5" cols="123">
+Write your answer for question 5
+Rows {1, 5, 7, 11, 13, 17} obey **Fact 1**. These are the rows that don't contain divisors of N (18) (or their multiples) except for the identity element 1. (e.g. {2, 3, 4, 6, 8, 9, 10, 12, 14, 15, 16})
+
+</textarea>\
+
+<p style="color:green">
+The function `GCD()` from the `numbers` package helps us find the Greatest Common Divisor (look this term up if you are not sure what it is) between two numbers. The function `GCD` take in two inputs. To find the gcd between each element of $Z_N^*$ and $N$, we use the R function `mapply` to allow a vector input to the function `GCD` and to get a vector output. Look up `mapply` to see how it works.</p>
+
+```{r}
+library(numbers)
+gcdZN<-mapply(GCD,1:N, N )
+cat("Greatest Common Divisor vector for gcdZN: ", gcdZN, '\n')
+
+# All unique values in the vector gcdZN and the number of each instance of them (using table(gcdZN):
+table(gcdZN)
+
+# print the number of instances of the value "1"
+# P. Raj. "R – Count Occurrences of a Value in a Vector." datascienceparichay.com. https://datascienceparichay.com/article/r-count-occurrences-of-a-value-in-a-vector/ (accessed Aug. 3, 2023).
+cat("Only the number of instances of the value \"1\":", (length(gcdZN[gcdZN == 1])))
+```
+
+\
+<p style="color:blue">
+**Question 6**: Modify the above code to assign the output to a vector `gcdZN` and count the number of $1$s in the output. Then run the modified code and find which elements of your $Z_N^*$ have the gcd between them and $N$ as $1$. Based on your code output, write those elements in the textbox below. ( 1 mark)</p>
+
+<textarea rows="5" cols="123">
+Write your answer for question 6
+
+The elements of Z_N^* which have the gcd between them and N (18) as 1 are those in positions 1, 5, 7, 11, 13 and 17.
+
+</textarea>\
+
+
+<p style="color:blue">
+**Question 7**: If $X$ denotes your original Cayley Table of $Z_N^*$ under multiplication $mod N$, find a way to define a new matrix $Y$ where we only keep the rows of $X$ that satisfy ***Fact 1***. 
+In the code block below, copy the code that creates the Cayley Table, assign it to $X$ and then write code to create $Y$ and display it.
+The row and column names of $Y$ **must have only those rows and columns that satisfy Fact 1**. ( 2 marks)</p>
+
+```{r}
+# Write your code to question 7
+
+X<-CayleyZN_18_non_zeroMult()
+
+print("Printing the Matrix X to compare to Matrix Y underneath it.")
+print(X)
+
+# Rows (and columns) that contain duplicates, as per the answer to question 5, are used below for removal from matrix X
+Y<-X[-c(2, 3, 4, 6, 8, 9, 10, 12, 14, 15, 16),-c(2, 3, 4, 6, 8, 9, 10, 12, 14, 15, 16)]
+print("Matrix Y is:")
+print(Y)
+
+```
+
+\
+<p style="color:blue">
+How many rows does this new matrix Y have? write your answer in the textbox below. </p>
+
+<textarea rows="5" cols="123">
+How many rows does this new matrix Y have?
+
+This new matrix Y has 6 rows.
+
+</textarea>\
+
+<p style="color:blue">
+The elements corresponding to the rows will actually form a Group under multiplication mod N. Let these elements be assigned to a new set **W** </p>
+
+```{r}
+# Create vector W, i.e. assign the elements corresponding to the rows in Y to a vector W
+
+W<-as.vector(Y)
+W<-unique(W)
+
+cat("The unique vector W generated from the Cayley Table that satisfies Fact 1 is:", W)
+
+``` 
+
+\
+<p style="color:green">
+Next, we will look at Fact 2.\
+**Fact 2: If a finite group $(G,∗)$, i.e., a group where the operation is $*$, has K elements, then any element $x$ multiplied by itself $K$ times, i.e., $x∗x∗..∗x=$ $x^K$ $mod$ $N$ gives the identity element of the group. For integer groups, $x^K mod N =1$, since $1$ is the multiplicative identity.**</p>
+
+\
+<p style="color:blue">
+**Question 8**:Write a piece of code to test the Fact 2: for all elements in W under multiplication mod N. (1 mark)</p>
+
+```{r}
+# Write your code to question 8
+# My N Group has 6 elements, so K = 6
+
+# The gmp package library has been loaded and used as, if not, the precision from int / numeric / double is insufficient, and then the resulting calculation is incorrect.
+# A. Treadway, Really large numbers in R, (Aug. 15, 2019). Accessed August 4, 2023. [Blog]. Available:  https://www.r-bloggers.com/2019/08/really-large-numbers-in-r/
+
+# Calculate K value
+K = length(W)
+
+cat("Calculated K value is:", K, "\n")
+
+#  Apply the function x^K mod N (W^K mod N) and save into a variable
+Fact2TestResult<-(W ^ K) %% N
+
+print("The test result value of Fact 2 on the vector W (which contains the unique elements of the Cayley Table satisfying Fact 1) is as follows:")
+
+print(Fact2TestResult)
+
+```
+
+---
+<center>**Congratulations!!! You have completed the Assignment 1A**</center>
+<center>**Now you will knit this file and save it as a pdf to upload in Canvas.**</center>
+
+
+

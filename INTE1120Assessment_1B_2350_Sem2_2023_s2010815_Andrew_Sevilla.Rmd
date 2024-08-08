@@ -1,0 +1,376 @@
+---
+title: 'INTE1120 Assessment 1B'
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+library(numbers)
+``` 
+
+
+## Introduction
+This assignment will continue the study of RSA. It will build on the theory you learned in Weeks 4 and the R Tutorial 3: RSA Computations in R.  Please review this material if you need to refresh yourself on how RSA works.
+
+### Assignment 1B details:
+**Type your short answers into the textbox and your code into the R notebook pane. For all code answers, run the R code and display the output. Once you have answered all the questions, you should Knit to HTML and use your web browser to print to PDF. You must submit the PDF file in Canvas before the Due Date.**
+
+**If you have questions about the R notebook format, please see the detailed instructions found in Week 0: Using R Notebooks**
+
+**Full marks will not be awarded unless all working and explanations are shown and that includes R commands and the answer obtained from them.** 
+
+**This assignment is worth 15 marks in total and contributes 15% to your grade.**
+**This assignment has 20 questions, each question shows how many marks are allocated immediately after the question** </p>
+
+***
+### Selecting and using keys in the RSA Cryptosystem
+
+The basic idea behind this system is the use of number theoretic functions to define one way trap-door functions,
+i.e., functions which are VERY DIFFICULT to invert, unless one has the key to the trap-door.
+
+The RSA cryptosystem uses the multiplicative group of integers $mod\ N$ where $N=p \times q$ is a power of two distinct primes. 
+
+<p style="color:blue">
+
+Let us consider Bob, who publishes an encryption exponent,  $e_B$ , and keeps the corresponding decryption exponent $d_B$ secret. 
+Hence, $(e_B,N)$ is Bob's public key and $(d_B, p, q)$ is Bob's private key.
+
+We would like to keep the numbers manageable, so we shall not choose HUGE primes but only moderately large primes.
+
+Let us help Bob to pick his modulus, $N_B$, as a product of the ${2ab}^{th}$ and ${3cd}^{th}$ prime numbers. 
+Here $ab$ is the first two digits in your student number, while $cd$ is the $3^{rd}$ and $4^{th}$ digits. 
+
+For example, if your student no. (without the "s") is $1234567$, 
+then $ab = 12$ and $2ab^{th}$ prime is the $212^{th}$ prime 
+and  $cd = 34$ and the $3cd^{th}$ prime is the $334^{th}$  prime.
+
+The package `numbers` has a function called `Primes()` that gives us all the prime numbers below a specified value. We use that to find the primes that we need. 
+
+```{r echo=TRUE}
+library(numbers)
+ListOfPrimes<-Primes(1000000) # get the list of primes below 1000000
+NumOfPrimes<-length(ListOfPrimes) # get the number of primes below 1000000
+
+
+# if student number is 1234567
+# the two primes would be the 212th and 334th primes
+p_B<-ListOfPrimes[212]
+q_B<-ListOfPrimes[334]
+p_B
+q_B
+
+```
+
+<p style="color:blue">
+**Question 1** What are the numbers a, b, c and d in your case? Write your student number AND the $ab$ and $cd$ from your student number in the text box below.**(0.5 marks)** </p>
+
+<textarea rows="5" cols="27">
+my student number : s2010815
+
+ab : 20
+cd : 10
+</textarea>\
+
+
+<p style="color:blue">
+**Question 2** Complete the following R code to compute $N_B$ (Bob's encryption modulus), where $p_B$ is the ${2ab}^{th}$ prime and $q_B$ is the ${3cd}^{th}$ prime number, based on your student number. **(0.5 mark)** </p>
+
+```{r Q2a, exercise=TRUE, exercise.lines=15}
+# Insert the primes based on your student number and compute the new N_B 
+p_B<-ListOfPrimes[220]  #Replace 1 with your value
+q_B<-ListOfPrimes[310]  #Replace 1 with your value
+p_B
+q_B
+
+
+
+#Write a command to compute N_B and display N_B
+N_B<-(p_B*q_B) #Replace 1 with the formula to calculate N_B
+N_B
+```
+
+
+Now, Bob needs to define his encryption exponent, $e_B$. This exponent must be *coprime to the Euler Totient function of N which we will call K*.\
+The ***Euler Totient function*** is the number of integers smaller than $N_B$ that are co-prime to $N_B$. It also happens to be the *Order of the Group of integers modulo N_B under multiplication*.
+
+It so happens that $K=(p_B - 1)*(q_B - 1)$. This is true only if $N_B$ is the product of two distinct primes.
+
+<p style="color:blue"> 
+**Question 3** Fill in the missing parts of the code below to find the ratio $K/N_B$. **(0.5 marks)** </p>
+
+```{r Q2b, exercise=TRUE}
+K<-sum(p_B-1)*sum(q_B-1) #Replace 1 with the formula to calculate K
+K
+
+K/N_B
+```
+
+
+<p style="color:blue">
+**Question 4** What do you think the ratio $K/N_B$ represents? **(0.5 marks)** </p>
+
+<textarea rows="3" cols="123">
+The ratio K/NB represents the percentage (fraction) of natural numbers whose greatest common divisor (GCD) with K is 1 (relatively prime [or coprime] to K).
+</textarea>\
+
+
+<p style="color:blue">
+**Question 5** Looking at the value of $K/N_B$, do you believe that if Bob chooses his encryption exponent $e_B$ at random, it is likely that this randomly chosen exponent actually belongs to the Group of integers $mod \ N_B$ under multiplication? Why or why not? **(0.5 marks)** </p>
+
+<textarea rows="4" cols="123">
+The encryption exponent that Bob randomly chooses would need to be selected from the Group of integers Mod N under multiplication for the N (NB) value. This contains values up until the value N - 1 (NB - 1). Our previous assignment using Caley tables demonstrated that the Group under multiplication does not contain the integers 0, nor N (NB), and hence the percentage (fraction) is not 100% (1), but almost 100% (1).
+</textarea>\
+
+
+Let us say that Bob selects $e_B$ at random and actually comes up with $e_B=3$ which is a commonly used value for the public key. The fact that  $e_B$ is in the multiplicative Group of integers mod $N_B$ is, of course, insufficient. We also need $e_B$ to be *coprime to $K$*.\
+
+Using the codeblock below, verify that this value of $e_B$ is coprime to K. It is possible that with the primes that you have chosen, this is not the case.
+
+<p style="color:blue">
+ **Question 6**  Find a value of $e_B$ OTHER THAN $e_B=3$. (Research and find out the other commonly used value for the public key). Use the new $e_B$ to repeat the commands below until you find an $e_B (\ne 3)$ that is co-prime to K. **(0.5 marks)** </p>\
+ 
+```{r Q2c, exercise=TRUE}
+e_B<-65537 #Replace 0 with the value you selected
+GCD(e_B, K)
+```
+
+
+<p style="color:blue"> 
+**Question 7**  Describe the steps you took to find a value of of $e_B$, other than $3$ that is co-prime to $K$ **(1 mark)** </p>
+
+<textarea rows="10" cols="123">
+The value of eB generally has to be relatively coprime with K, and has to be within the Group of integers mod N under multiplication, so between 1 and NB - 1 (i.e. between 1 and 2815344 - 1). The value 65537 was used as this is often used in practice as it is a relatively large prime (only divisible by 1 and itself) and 1 more than a power of 2, which is 2^16 + 1, and raising a number to the 65537th power basically consists of squaring. [1] This amount of bits also fits nicely into memory and registers for processing in computer systems that run on 32 and 64bit memory addressing, processing and buses.
+
+[1] J. Cook, "RSA encryption exponents are mostly all the same" JohnDCook.com. https://www.johndcook.com/blog/2018/12/12/rsa-exponent/#:~:text=The%20encryption%20exponent&text=In%20theory%20e%20could%20be,prime%20to%20%CF%86(n). (accessed Sep. 13, 2023).
+</textarea>\
+
+
+Thus, we choose an encryption exponent $e_B$ such that there are no common divisors between $e_B$ and $K$.\
+
+Bob then calculates his ***decryption exponent (or private key)*** $d_B$ and keeps it secret.\
+
+Given $e_B$ and $K$, it is relatively easy to compute $d_B$ as the multiplicative inverse of $e_B \mod K$, i.e., $e_B^{-1} \mod K$. This is done by using the *Euclidean algorithm* (see your notes from week 2).
+
+<p style="color:blue">
+**Question 8** Using your $e_B$ from above find $d_B$ by completing the command below and verify that this decryption exponent works, i.e., that $e_B * d_B = 1 (mod\ K)$. Use the `modinv` function in the R package `numbers` to do this. Hint: Look up the `modinv` function in the `numbers` package help file, study its usage and use it to get $d_B$. **(1 mark)** </p>
+ 
+```{r}
+# Compute the modular inverse of e_B mod K
+e_B<-65537       #Replace 0 with your value
+d_B<-modinv(e_B,K) #Replace 1s with correct values
+d_B
+check<-(e_B*d_B) %% K #Replace 0 with formula 
+check
+```
+ 
+
+We will now generate a random plaintext. Look up the command `runif()` in R. What kind of numbers does it generate? How can you use the `round()` function to make it an integer? Run the code below to test your understanding 
+```{r Q2e_test, exercise=TRUE}
+plaintext_example<-round(runif(1, 100,999))
+plaintext_example
+
+```
+
+<p style="color:blue">
+**Question 9** Use the `runif()` and `round()` function and modify the codeblock below to generate a random plaintext which is **6 digits** long **(0.5 mark)** </p>
+```{r Q2e, exercise=TRUE}
+plaintext_6<-round(runif(1,100000,999999)) #modify this line
+plaintext_6
+```
+
+<p style="color:blue">
+**Question 10** Encrypt and decrypt the `plaintext_6` given below using the public and private exponents you chose for Bob, to verify that the RSA system works. Run the code below. **(0.5 mark)** </p>
+
+```{r rsa, exercise=TRUE, exercise.lines=20}
+print(paste0("plaintext_6 = ", plaintext_6))
+ciphertext<-modpower(plaintext_6, e_B, N_B)  #Replace the 0 with correct values
+print(paste0("ciphertext = ", ciphertext))
+decodedtext<-modpower(ciphertext, d_B, N_B)  #Replace the 0 with correct values
+print(paste0("decoded text = ", decodedtext))
+print(decodedtext-plaintext_6)
+```
+
+
+<p style="color:blue">
+**Question 11** Describe, in plain English, what the commands in the code for Question 10 are doing. **(1 mark)** </p>
+
+<textarea rows="11" cols="123">
+The plaintext Message is being raised to the power of eB mod NB for encryption of the Message, as would be via a public key encryption mechanism of the assymetric public/private key pair used in RSA, resulting in the ciphertext. This ciphertext is then being decrypted by raising it to the power of dB mod NB, as would be via a private key decryption mechanism of the public/private assymetric key pair used in RSA.
+
+The paste0 command is concatenating the values of plaintext_6, ciphertext and decodedtext with text detailing what the values denote to then be printed by the print command.
+
+The modpower command initially raises the value contained in the plaintext_6 variable to the power of eB mod NB and then assigns it to the variable ciphertext to encrypt the plaintext_6 value, then it raises the value contained in the ciphertext variable to the power of dB mod NB and assigns the value to the variable decodedtext.
+</textarea>\
+ 
+
+<p style="color:blue">
+**Question 12** Now generate a random plaintext which is **15 digits** long and assign it to `plaintext_15`. Encrypt and decrypt `plaintext_15` and verify that the RSA system works.  **(1 mark)**  </p>
+
+```{r}
+plaintext_15<-round(runif(1,100000000000000,999999999999999)) #modify this line to generate a 15 digit plaintext
+plaintext_15
+print(paste0("plaintext_15 = ", plaintext_15))
+ciphertext<-modpower(plaintext_15, e_B, N_B)  #Replace the 0 with correct values
+print(paste0("ciphertext = ", ciphertext))
+decodedtext<-modpower(ciphertext, d_B, N_B)  #Replace the 0 with correct values
+print(paste0("decoded text = ", decodedtext))
+decoded_minus_plaintext_15<-(decodedtext-plaintext_15)
+decoded_minus_plaintext_15
+
+```
+
+<p style="color:blue">
+**Question 13** Do you think the RSA system worked correctly in Q12? Explain why. **(0.5 marks)**  </p>
+
+<textarea rows="9" cols="123">
+No, I don't think the RSA system worked correctly in Q12 as the message (plaintext_15) value is greater than the encryption modulus value N (NB / Bob's encryption modulus) and RSA only allows for messages to be able to be encrypted and successfully decrypted if the message is smaller than the encryption modulus which is the product of the primes p and q, as it won't exist in the Group of integers under multiplication. 
+
+The check in the last line where the decodedtext minus the plaintext_15 value does not equal 0 demonstrates that the decoded text is not the same as the plaintext_15 message. Integrity of the plaintext message cannot be maintained.
+
+This is in contrast to the answer in question 10 where the result is 0, denoting that the plaintext_6 and decodedtext values were the same. 
+</textarea>\
+
+<p style="color:blue">
+**Question 14** Can you find a way to rectify this issue and write a code to decrypt the plaintext_15 correctly. **(1 mark)**  </p>
+
+```{r}
+plaintext_15 # previous large plaintext variable
+plaintext_15_to_string <- as.character(plaintext_15) # double integer plaintext_15 converted to character string as it's too large
+print(paste0("plaintext_15 = ", plaintext_15))
+message<-strtoi(charToRaw(plaintext_15_to_string),16L) # converts plaintext_15_to_string to raw message then to hex then to integer representation of hex for added compression
+ciphertext<-mapply(modpower, message, e_B, N_B) # calculates the ciphertext of the compressed message by raising it to the power of e_B mod N_B, i.e. encodes it using RSA
+ciphertext
+raw<-mapply(modpower, ciphertext, d_B, N_B) # decodes the ciphertext back into the compressed message
+decoded_text<-rawToChar(as.raw(raw)) # converts the compressed message into a character string
+decoded_text_to_double <- as.double(decoded_text) # casts the string back to a double integer
+print(paste0("decoded ciphertext = ", decoded_text_to_double)) # decoded ciphertext message
+print(decoded_text_to_double-plaintext_15) # check that the decoded ciphertext minus the plaintext = 0 to ensure both values are the same
+
+```
+
+---
+
+RSA involves **modular exponentiation**. As a result, you may have some trouble doing encryption or decryption of large exponents because of memory limitations of R. 
+ 
+How does R deal with such large exponentiations? 
+It should be possible to attack the problem of large exponents by repeated squarings in R.
+
+
+<p style="color:blue">
+**Question 15** First check if squaring is possible with your **15 digit** plaintext (`plaintext_15`). Change the below code cell to find the square of `plaintext_15` mod $N_B$. **(0.5 marks)**  </p>
+
+
+```{r binsq, exercise=TRUE}
+plaintext_sq<-modpower(plaintext_15, 2, N_B)  #Replace the 0 with the correct values
+plaintext_sq
+```
+
+<p style="color:blue"> **Question 16**  What do you observe about `plaintext_sq` ? **(0.5 mark)** </p>
+
+<textarea rows="5" cols="123">
+I observe that squaring is possible on the plaintext variable and the resultant value is smaller when using the encryption exponent (eB) of 2, compared to the resultant value when using the value of 65537 for the encryption exponent (eB). Using a smaller value may make it easier to computationally determine the private key prime number, although the processes of encryption and decryption may be more efficient. In other words, it may make the resultant value more insecure as it may be quicker to brute force the ciphertext to gain the original message.
+</textarea>\
+
+Hence, it should be possible to answer the problem of large exponents by repeated squarings in R.
+<p style="color:blue">
+
+**Question 17** Describe in words how we could implement the above exponentiation by utilizing the binary expansions of $e_B$ and $d_B$. As a hint, consider that $x^5=x * x^4 = x * (x^2)^2$ Also know that with modular operations $(x^2)^2\ mod\ N$ can be performed by computing $(x^2\ mod\ N)^2\ mod\ N$ **(2 marks)** </p>
+
+To help you answering the above question, you can consider the binary expansions of the encryption and decryption exponents.
+
+```{r binary, exercise=TRUE, exercise.lines=20}
+e_B_binary<-rev(as.numeric(intToBits(e_B)))
+e_B_binary
+d_B_binary<-rev(as.numeric(intToBits(d_B)))
+d_B_binary
+```
+
+<textarea rows="10" cols="123">
+1. Convert the encryption exponent e_B (65537) to a binary representation by reversing the binary string for the exponent.
+2. Convert the decryption exponent d_B (e_B mod K) to a binary representation by reversing the binary string for the exponent.
+ (The above will be performed in that order as computers count from the least significant bit to the most significant bit)
+3. Traverse the binary From the least significant bit to the most significant bit.
+  3. a) For the first value of 1, we square the plaintext_15 value mod NB and record that result.
+  3. b) If, after the first value, we encounter a 1 we square the previous result mod NB then multiply this value by the plaintext_15 value mod NB and record that result.
+     c) If, after the first value, we encounter a 0 we square the previous result mod NB.
+4. The traversing ends after processing the most significant 1 bit.
+</textarea>\
+
+***
+### Now we are going to set up a new instance of RSA based on the modified/simplified version of RSA that we used in R Tutorial 3: RSA Computations in R.
+
+<p style="color:blue">
+
+Given a simplified RSA cryptosystem with the public key (e, N) = (37, 3831701) and private key of (d, p, q) = (d, p, q)
+
+<p style="color:blue">
+**Question 18** Find the corresponding private key $d$ for the this simplified RSA system. Verify $e$ and Euler Totient are coprime. **(0.5 marks)** </p>
+
+```{r}
+e<-37  # replace 0 with the corresponding value in the question
+N<-3831701 #replace 0 with the corresponding value in the question
+phi_N<-eulersPhi(N) # Use the Euler's Phi (Euler's totient) function from within the numbers library package to determine the phi of N value (using the value stored within the N variable) and record it in the variable phi_N
+phi_N # Print the Euler's totient value
+d<-modinv(e,phi_N) # Use the Modular Inverse function from within the numbers library package to determine the value of d and store it  a variable called d
+d # Print the value of d
+GCD(e,phi_N) # Find the Greatest Common Divisor of the Encryption Exponent (e) and Euler's Totient (phi_N)
+
+```
+
+<p style="color:blue">
+**Question 19** Given the ciphertext below, decrypt the message **(1 mark)** </p>
+
+```{r}
+ciphertext<-c(2469042, 1528435,  585721, 1794167, 1419709, 1436691, 1528435, 1267115, 1436691, 1794167, 1923088, 3819835, 1655443, 1528435,585721, 2620385,  682038, 1528435, 2076512, 2283244, 2790139, 1528435,  598797, 1923088, 2576113, 1226146, 1655443, 2620385, 1528435,  253741, 2576113,  253741, 1655443, 1436691,   85586, 1528435,  682038, 2620385, 1923088,  370140,  253741)
+
+# complete the code to decrypt the message
+
+decrypted_raw_value<-mapply(modpower, ciphertext, d, N) # Using the values of d and N from the question 18 above, apply the modpower function (Power Function modulo m) to the ciphertext variable, raising it to the power d modulo N and store it in the decrypted_raw_value variable. 
+decrypted_raw_value # Print the decrypted_raw_value
+decoded_raw_value<-rawToChar(as.raw(decrypted_raw_value)) # Decode the raw decrypted_raw_value and record it is a character string value into the variable decoded_raw_value
+decoded_raw_value # Print the character string value stored in the variable decoded_raw_value
+
+```
+
+<p style="color:blue">
+**Question 20** Now, you are going to send a single sentence message to the marker about how did you go with the assignment. Send the ciphertext and your public key with required commands to decrypt the message. **(1 mark)** </p>
+
+```{r}
+#my public key (0), replace zero with corresponding value/s
+# write your code here 
+
+e_q20<-65537
+N_q20<-3831701 
+phi_N_q20<-eulersPhi(N_q20)# Use the Euler's Phi (Euler's totient) function from within the numbers library package to determine the phi of N value (using the value stored within the N variable) and record it in the variable phi_N_q20
+phi_N_q20 # Print the value of phi_N_q20
+d_q20<-modinv(e_q20,phi_N_q20) # Use the Modular Inverse function from within the numbers library package to determine the value of d and store ita variable called d_q20
+d_q20 # Print the value of d_q20
+
+# my_ciphertext <- write your ciphertext as a vector
+my_ciphertext<-"This assignment was challenging at times but was interesting and I found I learnt a lot." # Store message string into variable
+ciphertext_to_int<-as.integer(charToRaw(my_ciphertext)) # Cast message string to raw value and store it in ciphertext_to_int variable
+
+ciphertext_to_int # Display vector in ciphertext_to_int variable
+
+print(paste("The Public Key used to encrypt the message is as follows (e_q20, N_q20):", e_q20, N_q20)) # Display public key used to encrypt message
+
+encrypted_raw_value<-mapply(modpower, ciphertext_to_int, e_q20, N_q20) #generates the encrypted value of the compressed/raw message by raising it to the power of e_q20 mod N_q20
+
+# commands to decrypt the message
+print(paste("The Private Key used to decrypt the message is as follows (d_q20, N_q20): ", d_q20, N_q20)) # Display private key used to decrypt message
+decrypted_raw_value_q20<-mapply(modpower, encrypted_raw_value, d_q20, N_q20) # Decrypts the encrypted raw value of the message by raising it to the power of d_q20 mod N_q20
+decoded_raw_value_q20<-rawToChar(as.raw(decrypted_raw_value_q20)) # Decode raw value to character string from decrypted raw value
+decoded_raw_value_q20 # Display decrypted / decoded message
+```
+
+<textarea rows="3" cols="80">
+
+This assignment was challenging at times but was interesting and I found I learnt a lot.
+</textarea>\
+
+---
+<center>**Congratulations!!! You have completed the Assignment 1B**</center>
+
