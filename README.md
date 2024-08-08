@@ -8,7 +8,7 @@ TBA
 TBA
 
 ### 3. Assignments Overview
-The assigments were provided as RMD files for R studio, with the work being the math code undertaken to reach the desired output results.
+The assigments were provided as RMD files for R studio, with the work being the math code undertaken to reach the desired output results. Each assignment detail is embedded in its RMD file.
 
 ### 4. Code Structure and Explanation
 TBA
